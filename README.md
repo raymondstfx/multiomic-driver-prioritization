@@ -110,6 +110,12 @@ in every condition × replicate group, verifies NTC/HIC2 coverage, and writes an
 explicit eligible-candidate list. Missing perturbation groups remain missing;
 they are never converted into zero effects.
 
+Phase 4 keeps biological replicates separate during estimation. For each
+candidate and modality it computes an NTC-corrected Difference-in-Differences
+vector independently for R1 and R2. Only afterwards are the two vectors
+averaged. Replicate cosine similarity is reported as a separate consistency
+metric; it is not folded into an effect or ranking score at this stage.
+
 ## Outputs
 
 Generated tables are written to `results/tables/`, figures to

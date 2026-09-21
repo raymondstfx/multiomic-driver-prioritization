@@ -45,5 +45,27 @@ RNA mitochondrial fractions are reported overall and by experimental group.
 No mt% filter is applied because the observed distribution is continuous and
 the condition-associated shift should not be erased without stronger evidence.
 
+## Phase 4 replicate-aware effects
+
+Biological replicates are never pooled before effect estimation. For candidate
+`i` and replicate `r`, the latent-space vector is:
+
+```text
+E_i,r = (Dasatinib_i,r - Dasatinib_NTC,r)
+      - (DMSO_i,r       - DMSO_NTC,r)
+```
+
+This is calculated independently in the 30-dimensional RNA PCA space and the
+30-dimensional ATAC LSI space. The reported mean effect is `(E_i,R1 + E_i,R2) /
+2`. Replicate consistency is the cosine similarity between the two replicate
+effect vectors. If either vector has zero magnitude, consistency is missing
+rather than being imputed as zero.
+
+The effect stage accepts only candidates marked eligible by Phase 3.5. It
+validates that truly absent groups remain NA with `missing_*` reasons and that
+present but undersized groups retain `below_min_*(count<threshold)` reasons.
+Dedicated exceptions distinguish a missing group from an insufficient group.
+No multi-omic ranking is calculated during this stage.
+
 This method provides treatment-specific perturbation evidence and cross-modal
 support. It is not MPL inference and is not, by itself, causal proof.
