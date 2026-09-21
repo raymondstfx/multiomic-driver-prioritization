@@ -33,7 +33,9 @@ to the same directory; its expected SHA-256 is recorded in `configs/data.yaml`.
 4. Estimate background-corrected treatment effects with Difference-in-Differences.
 5. Calculate RNA and ATAC effect magnitudes.
 6. Combine standardised scores into an interpretable multi-omic ranking.
-7. Evaluate HIC2 and ZFPM2 post hoc; they are never ranking inputs.
+7. Evaluate HIC2 post hoc as a rankable library perturbation.
+8. Treat ZFPM2 only as downstream/external biological validation; it is not a
+   pooled perturbation and cannot receive a perturbation rank.
 
 For perturbation `i`, the core contrast is:
 
@@ -92,6 +94,15 @@ RNA and ATAC are split from the shared Cell Ranger ARC matrix without dense
 conversion. Barcode suffixes such as `-1` are preserved because they match
 across the real files. Run tests with `pytest`.
 
+Phase 3 writes `rna_processed.h5ad` and `atac_processed.h5ad` under
+`data/processed/`. RNA retains raw counts in `layers["counts"]`, stores
+log-normalised expression in `X`, and stores 30 PCs in `obsm["X_pca"]`. Because
+the four Cell Ranger matrices use independently called peak coordinates, ATAC
+first collapses overlapping called peaks into shared consensus intervals (this
+does not call new peaks or use fragments). It then stores sparse TF-IDF in `X`
+and 30 LSI dimensions in `obsm["X_lsi"]`; LSI1 is retained and documented. QC
+tables and condition/replicate diagnostic plots are written to `results/`.
+
 ## Outputs
 
 Generated tables are written to `results/tables/`, figures to
@@ -103,8 +114,9 @@ from Git apart from directory placeholders.
 Guide calls follow the authors' published singlet rule: retain one called guide,
 or two guides only when both target the same vector. Cells with other positive
 combinations are labelled as multiplets and are not assigned a target. The
-score remains evidence prioritisation, not causal proof, and conclusions based
-on two externally supported candidates must remain modest.
+score remains evidence prioritisation, not causal proof. HIC2 is used only for
+post-ranking evaluation. ZFPM2 is absent from the guide library and is reserved
+for separate downstream biological validation.
 
 ## Future work
 

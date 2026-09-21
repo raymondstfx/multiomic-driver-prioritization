@@ -6,7 +6,7 @@ from collections.abc import Sequence
 
 import pandas as pd
 
-KNOWN_VALIDATED = ("HIC2", "ZFPM2")
+RANKABLE_CANDIDATES = ("HIC2",)
 
 
 def get_candidate_rank(
@@ -18,9 +18,9 @@ def get_candidate_rank(
 
 
 def evaluate_known_candidates(
-    ranking_df: pd.DataFrame, known_genes: Sequence[str] = KNOWN_VALIDATED
+    ranking_df: pd.DataFrame, known_genes: Sequence[str] = RANKABLE_CANDIDATES
 ) -> pd.DataFrame:
-    """Extract available modality and multi-omic ranks for known genes."""
+    """Extract ranks for perturbations that genuinely occur in the library."""
     rank_columns = [
         name
         for name in ("rna_rank", "atac_rank", "multiomic_rank")
@@ -34,4 +34,3 @@ def evaluate_known_candidates(
             row[column] = indexed.at[gene, column] if gene in indexed.index else pd.NA
         rows.append(row)
     return pd.DataFrame(rows)
-

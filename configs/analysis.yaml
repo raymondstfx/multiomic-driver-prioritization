@@ -10,6 +10,7 @@ rna:
 atac:
   min_cells_per_peak: 3
   n_lsi: 30
+  harmonize_overlapping_peaks: true
 
 pseudobulk:
   method: mean
@@ -18,5 +19,5 @@ ranking:
   combine_method: mean_zscore
 
 validation:
-  known_candidates: [HIC2, ZFPM2]
-
+  rankable_candidates: [HIC2]
+  external_validation_genes: [ZFPM2]

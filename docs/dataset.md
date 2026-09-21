@@ -72,3 +72,26 @@ Phase 2 produces:
 
 These derived files remain under `data/interim/` and are excluded from Git.
 
+## Validation targets
+
+HIC2 is present as a guide target in every condition × replicate group and is a
+valid perturbation for later candidate ranking. ZFPM2 is absent from the GEO
+guide identifiers and official guide-call matrices, although it is present as
+an RNA feature. It must therefore not be assigned a perturbation score or rank;
+it is used only for downstream/external biological validation.
+
+## Phase 3 outputs
+
+The processed RNA and ATAC AnnData objects preserve global `cell_id` indices,
+condition, replicate, barcode, and guide-assignment fields. RNA contains
+log-normalised expression, retained raw counts, HVG annotations, and PCA. ATAC
+contains a sparse TF-IDF matrix and LSI. Generated objects, QC tables, figures,
+and logs are intentionally ignored by Git.
+
+The four input ATAC peak sets are independently called: 792,017 of 792,914
+exact peak coordinates occur in only one condition × replicate matrix and no
+exact coordinate occurs in all four. A direct exact-coordinate-union LSI was
+therefore dominated by sample identity. Phase 3 collapses overlapping existing
+calls into 278,457 shared consensus intervals before TF-IDF. This also restores
+complete chromosome/start/end annotations that were necessarily sparse on the
+outer-joined interim feature table.
