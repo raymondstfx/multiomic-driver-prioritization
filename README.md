@@ -19,8 +19,11 @@ and DMSO conditions with RNA, ATAC, and CRISPR guide information. This project
 uses processed matrices; raw FASTQ and fragment-level processing are out of
 scope. Large data files are intentionally excluded from Git.
 
-Place downloaded files under `data/raw/GSE288996/`. The ingestion layer will
-validate the actual supplementary-file layout before downstream analysis.
+Place downloaded GEO files under `data/raw/GSE288996/`. The GEO guideRNA TXT
+files are aggregate guide counts rather than cell-level assignments. Download
+the authors' official
+[`guide_caller_calls.zip`](https://github.com/ucsf-lgr/catatac_public/raw/refs/heads/master/guide_caller_calls.zip)
+to the same directory; its expected SHA-256 is recorded in `configs/data.yaml`.
 
 ## Method
 
@@ -65,6 +68,7 @@ python -m pip install -e ".[dev]"
 Run each stage from the repository root:
 
 ```bash
+python scripts/00_inspect_dataset.py --config configs/default.yaml
 python scripts/01_prepare_data.py --config configs/default.yaml
 python scripts/02_preprocess_rna.py --config configs/default.yaml
 python scripts/03_preprocess_atac.py --config configs/default.yaml
@@ -74,9 +78,19 @@ python scripts/06_evaluate.py --config configs/default.yaml
 python scripts/07_generate_figures.py --config configs/default.yaml
 ```
 
-Until the downloaded GEO layout is inspected, data-dependent commands stop
-with a concise error and a non-zero exit status rather than fabricating output.
-Run tests with `pytest`.
+The inspection stage records the file inventory, real matrix dimensions,
+feature types, guide-call structure, barcode examples, and per-sample overlap
+in `results/logs/dataset_inspection.txt`. The preparation stage creates:
+
+```text
+data/interim/cell_metadata.csv
+data/interim/rna_merged.h5ad
+data/interim/atac_merged.h5ad
+```
+
+RNA and ATAC are split from the shared Cell Ranger ARC matrix without dense
+conversion. Barcode suffixes such as `-1` are preserved because they match
+across the real files. Run tests with `pytest`.
 
 ## Outputs
 
@@ -86,13 +100,14 @@ from Git apart from directory placeholders.
 
 ## Limitations
 
-This scaffold does not yet encode dataset-specific guide-file columns or
-sample-merging rules. The score is evidence prioritisation, not causal proof.
-Conclusions based on two externally supported candidates must remain modest.
+Guide calls follow the authors' published singlet rule: retain one called guide,
+or two guides only when both target the same vector. Cells with other positive
+combinations are labelled as multiplets and are not assigned a target. The
+score remains evidence prioritisation, not causal proof, and conclusions based
+on two externally supported candidates must remain modest.
 
 ## Future work
 
 Potential extensions include replicate-stability weighting, gene-to-peak
 linking, pathway-level influence analogues, and more advanced representations
 after the basic alignment and background correction have been validated.
-

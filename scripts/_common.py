@@ -24,7 +24,6 @@ def run_stage(name: str, action: Callable[[dict], None]) -> None:
         logger.info("Starting stage with config %s", arguments.config)
         action(load_project_config(arguments.config))
         logger.info("Stage completed")
-    except (FileNotFoundError, ValueError, NotImplementedError) as error:
+    except (FileNotFoundError, OSError, TypeError, ValueError, NotImplementedError) as error:
         logger.error("%s", error)
         raise SystemExit(2) from error
-

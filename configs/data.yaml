@@ -7,6 +7,11 @@ paths:
   interim: data/interim
   processed: data/processed
   results: results
+  guide_calls: data/raw/GSE288996/guide_caller_calls.zip
+
+guide_calls:
+  source_url: https://github.com/ucsf-lgr/catatac_public/raw/refs/heads/master/guide_caller_calls.zip
+  sha256: 2e5992e57d9ec0c1575ab5316e50ab311a0724a846f4f65035c4033e8d1fd1bf
 
 conditions:
   treated: Dasatinib
@@ -14,4 +19,3 @@ conditions:
 
 replicates: [1, 2]
 modalities: [RNA, ATAC, guideRNA]
-
