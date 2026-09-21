@@ -74,6 +74,7 @@ python scripts/00_inspect_dataset.py --config configs/default.yaml
 python scripts/01_prepare_data.py --config configs/default.yaml
 python scripts/02_preprocess_rna.py --config configs/default.yaml
 python scripts/03_preprocess_atac.py --config configs/default.yaml
+python scripts/03b_phase4_readiness.py --config configs/default.yaml
 python scripts/04_compute_effects.py --config configs/default.yaml
 python scripts/05_rank_candidates.py --config configs/default.yaml
 python scripts/06_evaluate.py --config configs/default.yaml
@@ -102,6 +103,12 @@ first collapses overlapping called peaks into shared consensus intervals (this
 does not call new peaks or use fragments). It then stores sparse TF-IDF in `X`
 and 30 LSI dimensions in `obsm["X_lsi"]`; LSI1 is retained and documented. QC
 tables and condition/replicate diagnostic plots are written to `results/`.
+
+The Phase 3.5 readiness stage characterises mitochondrial-count distributions,
+requires each primary targeting perturbation to have at least 20 singlet cells
+in every condition × replicate group, verifies NTC/HIC2 coverage, and writes an
+explicit eligible-candidate list. Missing perturbation groups remain missing;
+they are never converted into zero effects.
 
 ## Outputs
 

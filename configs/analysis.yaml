@@ -12,6 +12,10 @@ atac:
   n_lsi: 30
   harmonize_overlapping_peaks: true
 
+phase4:
+  min_cells_per_group: 20
+  require_all_groups: true
+
 pseudobulk:
   method: mean
 

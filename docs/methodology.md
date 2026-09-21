@@ -32,5 +32,18 @@ N is the number of cells, and DF is the peak's non-zero cell count. Truncated
 SVD produces 30 LSI dimensions. LSI1 is retained; any later decision to exclude
 it must be justified during downstream modelling.
 
+## Phase 3.5 eligibility gate
+
+The primary Phase 4 set contains targeting singlets only. A perturbation must
+occur in all four condition × replicate groups and contain at least 20 cells in
+each group. The threshold and all-group requirement are configured under
+`phase4` in `configs/analysis.yaml`. Missing groups are represented as missing
+and mean that the four-group effect is not estimable; they are not zero-valued
+effects. NTC cells form the shared reference and are never ranked candidates.
+
+RNA mitochondrial fractions are reported overall and by experimental group.
+No mt% filter is applied because the observed distribution is continuous and
+the condition-associated shift should not be erased without stronger evidence.
+
 This method provides treatment-specific perturbation evidence and cross-modal
 support. It is not MPL inference and is not, by itself, causal proof.
