@@ -1,0 +1,44 @@
+# Data (keep directory placeholders only)
+data/raw/*
+data/interim/*
+data/processed/*
+!data/raw/.gitkeep
+!data/raw/GSE288996/
+data/raw/GSE288996/*
+!data/raw/GSE288996/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Generated results
+results/tables/*
+results/figures/*
+results/logs/*
+!results/tables/.gitkeep
+!results/figures/.gitkeep
+!results/logs/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Environments and secrets
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

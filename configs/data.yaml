@@ -1,0 +1,17 @@
+dataset:
+  name: GSE288996
+  cell_line: K562
+
+paths:
+  raw: data/raw/GSE288996
+  interim: data/interim
+  processed: data/processed
+  results: results
+
+conditions:
+  treated: Dasatinib
+  control: DMSO
+
+replicates: [1, 2]
+modalities: [RNA, ATAC, guideRNA]
+

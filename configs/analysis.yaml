@@ -1,0 +1,22 @@
+random_seed: 42
+
+rna:
+  min_genes: 200
+  min_cells_per_gene: 3
+  target_sum: 10000
+  n_hvg: 3000
+  n_pcs: 30
+
+atac:
+  min_cells_per_peak: 3
+  n_lsi: 30
+
+pseudobulk:
+  method: mean
+
+ranking:
+  combine_method: mean_zscore
+
+validation:
+  known_candidates: [HIC2, ZFPM2]
+
