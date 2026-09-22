@@ -116,6 +116,12 @@ vector independently for R1 and R2. Only afterwards are the two vectors
 averaged. Replicate cosine similarity is reported as a separate consistency
 metric; it is not folded into an effect or ranking score at this stage.
 
+Phase 5 ranks candidates by the magnitude of each replicate-averaged effect
+vector. RNA and ATAC magnitudes are standardized independently using population
+SD (`ddof=0`), then combined with equal weight. Replicate consistency remains a
+separate diagnostic. HIC2 is inspected only after the label-free ranking has
+been finalized; ZFPM2 is not a ranked perturbation.
+
 ## Outputs
 
 Generated tables are written to `results/tables/`, figures to

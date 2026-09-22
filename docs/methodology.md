@@ -67,5 +67,22 @@ present but undersized groups retain `below_min_*(count<threshold)` reasons.
 Dedicated exceptions distinguish a missing group from an insufficient group.
 No multi-omic ranking is calculated during this stage.
 
+## Phase 5 multi-omic ranking
+
+The primary modality scores are the existing Phase 4 `mean_effect_norm`
+values—not the average of R1 and R2 norms. RNA and ATAC scores are independently
+standardized over the complete 12-candidate primary population using z-scores
+with `ddof=0`. The multi-omic score is the unweighted mean:
+
+```text
+multiomic_score_i = (rna_z_i + atac_z_i) / 2
+```
+
+Ranks are descending and ties use deterministic minimum rank. Zero-variance,
+non-finite, duplicate-candidate, and cross-modality candidate-set errors fail
+explicitly. Replicate cosine similarity is retained in the output but is not
+used as a score multiplier or exclusion rule. Known biology and validation
+labels are not ranking inputs.
+
 This method provides treatment-specific perturbation evidence and cross-modal
 support. It is not MPL inference and is not, by itself, causal proof.
