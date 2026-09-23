@@ -41,9 +41,9 @@ def rank_rna_effects(effect_summary: pd.DataFrame) -> pd.DataFrame:
             "rna_r2_effect_norm": effect_summary["r2_effect_norm"].astype(float),
         }
     )
-    result["rna_rank"] = result["rna_score"].rank(
-        method="min", ascending=False
-    ).astype(int)
-    return result.sort_values(
-        ["rna_rank", "candidate"], kind="stable"
-    ).reset_index(drop=True)
+    result["rna_rank"] = (
+        result["rna_score"].rank(method="min", ascending=False).astype(int)
+    )
+    return result.sort_values(["rna_rank", "candidate"], kind="stable").reset_index(
+        drop=True
+    )

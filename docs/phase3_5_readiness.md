@@ -63,4 +63,4 @@ external biological validation only.
 The Phase 4 gate passes: NTC coverage is sufficient, 12 targeting
 perturbations are eligible, HIC2 is eligible, and mitochondrial QC does not show
 an unresolved failure requiring Phase 3 to be rerun. The project is ready for
-replicate-aware pseudobulk and background-corrected effect estimation.
+replicate-aware latent-centroid and background-corrected effect estimation.

@@ -6,6 +6,7 @@ import pytest
 
 from multiomic_driver.evaluation.ranking_evaluation import (
     assign_cross_modal_profile,
+    consistency_category,
     hic2_validation_table,
     rank_comparison_table,
     validate_ranking,
@@ -29,7 +30,7 @@ def _ranking() -> pd.DataFrame:
             "multiomic_score": [0.75, 0.75, -1.5],
             "rna_rank": [1, 2, 3],
             "atac_rank": [2, 1, 3],
-            "multiomic_rank": [1, 2, 3],
+            "multiomic_rank": [1, 1, 3],
             "rna_replicate_cosine": [0.8, 0.9, 0.1],
             "atac_replicate_cosine": [0.7, 0.6, -0.2],
         }
@@ -39,8 +40,8 @@ def _ranking() -> pd.DataFrame:
 def test_rank_shifts_and_profiles_are_derived() -> None:
     comparison = rank_comparison_table(_ranking())
     hic2 = comparison.set_index("candidate").loc["HIC2"]
-    assert hic2["rna_to_multiomic_shift"] == 0
-    assert hic2["atac_to_multiomic_shift"] == -1
+    assert hic2["rna_to_multiomic_shift"] == 1
+    assert hic2["atac_to_multiomic_shift"] == 0
     assert hic2["cross_modal_profile"] == "both_high"
     assert assign_cross_modal_profile(1.0, -0.1) == "rna_dominant"
     assert assign_cross_modal_profile(-0.1, 1.0) == "atac_dominant"
@@ -51,7 +52,7 @@ def test_hic2_lookup_is_post_hoc_and_zfpm2_is_excluded() -> None:
     ranking = _ranking()
     validate_ranking(ranking, expected_count=3)
     hic2 = hic2_validation_table(ranking).iloc[0]
-    assert hic2["multiomic_rank"] == 2
+    assert hic2["multiomic_rank"] == 1
     assert hic2["validation_role"] == "experimentally supported pooled perturbation"
 
     invalid = pd.concat(
@@ -103,3 +104,36 @@ def test_grouped_zfpm2_summary_and_replicate_aware_contrast() -> None:
     assert effects["replicate_specific_did"].tolist() == [2.0, 2.0]
     assert did_summary.iloc[0]["mean_replicate_did"] == 2.0
     assert bool(did_summary.iloc[0]["replicate_direction_agreement"])
+
+
+def test_tied_ranks_and_nonestimable_cosines_are_valid() -> None:
+    ranking = _ranking()
+    ranking.loc[0, "rna_replicate_cosine"] = np.nan
+    validate_ranking(ranking, expected_count=3)
+    assert consistency_category(np.nan) == "not_estimable"
+    ranking.loc[0, "rna_replicate_cosine"] = 1.01
+    with pytest.raises(ValueError, match=r"within \[-1, 1\]"):
+        validate_ranking(ranking, expected_count=3)
+    ranking.loc[0, "rna_replicate_cosine"] = np.nan
+    ranking.loc[0, "multiomic_rank"] = 2
+    with pytest.raises(ValueError, match="inconsistent"):
+        validate_ranking(ranking, expected_count=3)
+
+
+def test_zfpm2_summary_reports_count_based_metrics() -> None:
+    expression, metadata = _expression_inputs()
+    counts = np.arange(len(expression)) % 3
+    libraries = np.full(len(expression), 100.0)
+    summary = summarize_gene_expression(
+        expression, metadata, raw_counts=counts, library_sizes=libraries
+    )
+    assert {
+        "mean_positive_expression",
+        "total_raw_count",
+        "pseudobulk_cpm",
+        "pseudobulk_log1p_cpm",
+    }.issubset(summary.columns)
+    contrasts = hic2_ntc_contrasts(summary, metric="pseudobulk_log1p_cpm")
+    effects, result = replicate_aware_did(contrasts)
+    assert (effects["metric"] == "pseudobulk_log1p_cpm").all()
+    assert result.iloc[0]["metric"] == "pseudobulk_log1p_cpm"

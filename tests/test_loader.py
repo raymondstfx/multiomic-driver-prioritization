@@ -94,4 +94,6 @@ def test_matrix_dimension_mismatch(tmp_path: Path) -> None:
     _write_gzip(barcodes, "A-1\n")
     _write_gzip(features, "g1\tG1\tGene Expression\n")
     with pytest.raises(ValueError, match="do not match"):
-        validate_matrix_dimensions(matrix, read_barcodes(barcodes), read_features(features))
+        validate_matrix_dimensions(
+            matrix, read_barcodes(barcodes), read_features(features)
+        )

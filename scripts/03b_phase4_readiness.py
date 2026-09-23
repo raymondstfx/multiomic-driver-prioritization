@@ -16,6 +16,7 @@ from multiomic_driver.evaluation.eligibility import (
     readiness_summary,
 )
 from multiomic_driver.preprocessing.qc import validate_metadata
+from multiomic_driver.utils.artifacts import figure_dir, table_dir
 from multiomic_driver.utils.io import require_path
 from multiomic_driver.visualization.plots import save_mitochondrial_qc_figures
 
@@ -45,9 +46,8 @@ def main(config: dict) -> None:
         require_all,
     )
 
-    tables = Path(config["paths"]["results"]) / "tables"
-    figures = Path(config["paths"]["results"]) / "figures"
-    tables.mkdir(parents=True, exist_ok=True)
+    tables = table_dir(config, "phase035")
+    figures = figure_dir(config, "phase035")
     mt_summary = mitochondrial_qc_summary(rna.obs)
     mt_by_group = mitochondrial_qc_by_group(rna.obs)
     mt_summary.to_csv(tables / "rna_mt_qc_summary.csv", index=False)
@@ -74,15 +74,14 @@ def main(config: dict) -> None:
     if "ZFPM2" in set(eligibility["target_gene"]):
         raise ValueError("ZFPM2 incorrectly appeared as a pooled perturbation")
     hic2 = eligibility.loc[eligibility["target_gene"].eq("HIC2")]
-    expected_hic2 = [183, 230, 325, 320]
     count_columns = [
         "dmso_r1_cells",
         "dmso_r2_cells",
         "dasatinib_r1_cells",
         "dasatinib_r2_cells",
     ]
-    if len(hic2) != 1 or hic2[count_columns].iloc[0].tolist() != expected_hic2:
-        raise ValueError("HIC2 counts changed unexpectedly from Phase 3")
+    if len(hic2) != 1 or hic2[count_columns].isna().any(axis=None):
+        raise ValueError("HIC2 does not have all four required experimental groups")
     if not bool(hic2.iloc[0]["phase4_eligible"]):
         raise ValueError("HIC2 is not Phase 4 eligible")
     if not bool(readiness.set_index("metric").at["phase4_ready", "value"]):

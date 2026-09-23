@@ -1,0 +1,16 @@
+validation_id,target,metric,replicate,value,direction,interpretation,analysis_role
+hic2_rna_rank,HIC2,rna_rank,combined,2.0,lower_is_better,post-ranking supported benchmark,primary_validation
+hic2_atac_rank,HIC2,atac_rank,combined,5.0,lower_is_better,post-ranking supported benchmark,primary_validation
+hic2_multiomic_rank,HIC2,multiomic_rank,combined,4.0,lower_is_better,post-ranking supported benchmark,primary_validation
+hic2_rna_replicate_cosine,HIC2,rna_replicate_cosine,R1_vs_R2,0.9062482118606568,higher_is_more_consistent,diagnostic; not included in primary score,diagnostic
+hic2_atac_replicate_cosine,HIC2,atac_replicate_cosine,R1_vs_R2,0.573973536491394,higher_is_more_consistent,diagnostic; not included in primary score,diagnostic
+zfpm2_mean_expression_R1,ZFPM2 downstream of HIC2,mean_expression,R1,-0.2603160798459508,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_mean_expression_R2,ZFPM2 downstream of HIC2,mean_expression,R2,-0.2781092589455937,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_median_expression_R1,ZFPM2 downstream of HIC2,median_expression,R1,-0.1086016297340393,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_median_expression_R2,ZFPM2 downstream of HIC2,median_expression,R2,-0.0974791646003723,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_fraction_expressing_R1,ZFPM2 downstream of HIC2,fraction_expressing,R1,0.1087158150872057,positive,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_fraction_expressing_R2,ZFPM2 downstream of HIC2,fraction_expressing,R2,0.1094109097556944,positive,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_mean_positive_expression_R1,ZFPM2 downstream of HIC2,mean_positive_expression,R1,-0.3094740250389884,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_mean_positive_expression_R2,ZFPM2 downstream of HIC2,mean_positive_expression,R2,-0.3750135033206607,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_pseudobulk_log1p_cpm_R1,ZFPM2 downstream of HIC2,pseudobulk_log1p_cpm,R1,-0.0169098386888562,negative,within-dataset downstream consistency; not direct regulation,secondary_validation
+zfpm2_pseudobulk_log1p_cpm_R2,ZFPM2 downstream of HIC2,pseudobulk_log1p_cpm,R2,-0.1854808433470767,negative,within-dataset downstream consistency; not direct regulation,secondary_validation

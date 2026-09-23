@@ -1,2 +1,1 @@
 """Publication-oriented figures."""
-

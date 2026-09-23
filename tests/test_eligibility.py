@@ -71,9 +71,7 @@ def test_candidate_eligibility_preserves_missing_groups() -> None:
 
 def test_ntc_and_readiness_gate() -> None:
     metadata = _coverage_metadata()
-    eligibility = evaluate_candidate_eligibility(
-        metadata, min_cells_per_group=20
-    )
+    eligibility = evaluate_candidate_eligibility(metadata, min_cells_per_group=20)
     ntc = ntc_group_coverage(metadata, min_cells_per_group=20)
     summary = readiness_summary(eligibility, ntc).set_index("metric")["value"]
 

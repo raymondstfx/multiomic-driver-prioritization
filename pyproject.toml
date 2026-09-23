@@ -29,7 +29,10 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra"
+addopts = "-ra -m 'not real_data'"
+markers = [
+  "real_data: optional local regression tests requiring generated GSE288996 artifacts",
+]
 
 [tool.ruff]
 line-length = 88

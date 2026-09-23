@@ -43,7 +43,9 @@ def _scatter(
     if is_hic2.any():
         row = ranking.loc[is_hic2].iloc[0]
         axis.scatter(row[x], row[y], color="#e45756", s=70, label="HIC2")
-        axis.annotate("HIC2", (row[x], row[y]), xytext=(5, 5), textcoords="offset points")
+        axis.annotate(
+            "HIC2", (row[x], row[y]), xytext=(5, 5), textcoords="offset points"
+        )
     if reference_lines:
         axis.axhline(0, color="0.7", linewidth=1, linestyle="--")
         axis.axvline(0, color="0.7", linewidth=1, linestyle="--")
@@ -65,9 +67,7 @@ def plot_rna_vs_atac(ranking: pd.DataFrame, output_path: str | Path) -> None:
     )
 
 
-def plot_rna_vs_atac_zscores(
-    ranking: pd.DataFrame, output_path: str | Path
-) -> None:
+def plot_rna_vs_atac_zscores(ranking: pd.DataFrame, output_path: str | Path) -> None:
     """Save a standardized cross-modality score scatter plot."""
     _scatter(
         ranking,
@@ -81,9 +81,7 @@ def plot_rna_vs_atac_zscores(
     )
 
 
-def plot_candidate_ranking(
-    ranking: pd.DataFrame, output_path: str | Path
-) -> None:
+def plot_candidate_ranking(ranking: pd.DataFrame, output_path: str | Path) -> None:
     """Plot multi-omic scores without hiding negative values."""
     import matplotlib.pyplot as plt
 
@@ -134,21 +132,15 @@ def plot_modality_rank_comparison(
     _finish(fig, output_path)
 
 
-def plot_replicate_consistency(
-    ranking: pd.DataFrame, output_path: str | Path
-) -> None:
+def plot_replicate_consistency(ranking: pd.DataFrame, output_path: str | Path) -> None:
     """Plot raw replicate cosine values separately from ranking scores."""
     import matplotlib.pyplot as plt
 
     ordered = ranking.sort_values("multiomic_rank", ascending=False)
     y = np.arange(len(ordered))
     fig, axis = plt.subplots(figsize=(8, 6.5))
-    axis.scatter(
-        ordered["rna_replicate_cosine"], y, label="RNA", color="#4c78a8"
-    )
-    axis.scatter(
-        ordered["atac_replicate_cosine"], y, label="ATAC", color="#f2a541"
-    )
+    axis.scatter(ordered["rna_replicate_cosine"], y, label="RNA", color="#4c78a8")
+    axis.scatter(ordered["atac_replicate_cosine"], y, label="ATAC", color="#f2a541")
     for index, row in enumerate(ordered.itertuples()):
         axis.plot(
             [row.rna_replicate_cosine, row.atac_replicate_cosine],

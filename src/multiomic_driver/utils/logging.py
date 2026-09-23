@@ -6,7 +6,9 @@ import logging
 from pathlib import Path
 
 
-def configure_logging(name: str, log_dir: str | Path = "results/logs") -> logging.Logger:
+def configure_logging(
+    name: str, log_dir: str | Path = "results/logs"
+) -> logging.Logger:
     """Create an idempotent logger that writes to console and a project log."""
     logger = logging.getLogger(name)
     if logger.handlers:
@@ -20,4 +22,3 @@ def configure_logging(name: str, log_dir: str | Path = "results/logs") -> loggin
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
-

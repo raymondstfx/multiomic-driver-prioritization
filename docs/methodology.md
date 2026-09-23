@@ -1,7 +1,7 @@
 # Methodology
 
 The first implementation ranks candidate perturbations from treatment-specific,
-background-corrected effects in RNA PCA and ATAC LSI space. Cells are aggregated
+background-corrected effects in RNA PCA and ATAC LSI space. Latent centroids are computed
 by perturbation, condition, and biological replicate. For each perturbation, a
 Difference-in-Differences contrast subtracts its DMSO effect from its Dasatinib
 effect, each relative to non-targeting controls.
@@ -50,10 +50,10 @@ the condition-associated shift should not be erased without stronger evidence.
 Biological replicates are never pooled before effect estimation. For candidate
 `i` and replicate `r`, the latent-space vector is:
 
-```text
-E_i,r = (Dasatinib_i,r - Dasatinib_NTC,r)
-      - (DMSO_i,r       - DMSO_NTC,r)
-```
+$$
+E_{i,r}=(\bar{x}_{\mathrm{DASA},i,r}-\bar{x}_{\mathrm{DASA},NTC,r})
+       -(\bar{x}_{\mathrm{DMSO},i,r}-\bar{x}_{\mathrm{DMSO},NTC,r}).
+$$
 
 This is calculated independently in the 30-dimensional RNA PCA space and the
 30-dimensional ATAC LSI space. The reported mean effect is `(E_i,R1 + E_i,R2) /
@@ -74,9 +74,9 @@ values—not the average of R1 and R2 norms. RNA and ATAC scores are independent
 standardized over the complete 12-candidate primary population using z-scores
 with `ddof=0`. The multi-omic score is the unweighted mean:
 
-```text
-multiomic_score_i = (rna_z_i + atac_z_i) / 2
-```
+$$
+S_i=\frac{z(S_i^{RNA})+z(S_i^{ATAC})}{2}.
+$$
 
 Ranks are descending and ties use deterministic minimum rank. Zero-variance,
 non-finite, duplicate-candidate, and cross-modality candidate-set errors fail
@@ -91,7 +91,7 @@ support. It is not MPL inference and is not, by itself, causal proof.
 
 Phase 6 consumes the fixed `candidate_ranking.csv`; it does not recompute or
 modify Phase 5 scores. The input gate requires 12 unique primary candidates,
-finite scores and diagnostics, complete integer ranks, HIC2 presence, and ZFPM2
+finite primary scores, valid (possibly tied) integer ranks, HIC2 presence, and ZFPM2
 absence. Rank shifts are `single_modality_rank - multiomic_rank`, so a positive
 value means improvement under integration. Spearman correlations are reported
 descriptively because the candidate set is small.
@@ -108,10 +108,10 @@ library. Its log-normalised expression is summarised for HIC2 and pooled NTC
 singlet cells separately within DMSO/Dasatinib and R1/R2. For replicate `r`, the
 targeted downstream contrast is:
 
-```text
-ZFPM2_DiD_r = (Dasatinib_HIC2,r - Dasatinib_NTC,r)
-            - (DMSO_HIC2,r       - DMSO_NTC,r)
-```
+$$
+\mathrm{ZFPM2\ DiD}_r=(y_{\mathrm{DASA},HIC2,r}-y_{\mathrm{DASA},NTC,r})
+ -(y_{\mathrm{DMSO},HIC2,r}-y_{\mathrm{DMSO},NTC,r}).
+$$
 
 Only after the two replicate effects are estimated are their mean and direction
 agreement reported. Individual cells are not treated as independent biological
@@ -119,7 +119,17 @@ replicates for inferential claims. This analysis tests downstream consistency;
 it does not assign ZFPM2 a perturbation rank or establish direct regulation.
 
 The final implemented sequence is: verified RNA/ATAC/guide alignment; RNA and
-ATAC preprocessing; eligibility filtering; replicate-specific pseudobulk;
+ATAC preprocessing; eligibility filtering; replicate-specific latent centroids;
 replicate-specific background-corrected DiD; replicate-mean effect vectors;
 modality-specific effect norms; within-modality z-scoring; equal-weight
 integration; and post-hoc experimental, literature, and downstream validation.
+
+## Phase 7 robustness and reporting
+
+The fixed `primary_v1` ranking remains the main analysis. Phase 7 separately
+tests winsorised, trimmed, and median latent centroids; leave-one-dimension-out
+scores; NTC-SD scaling; exact-guide composition; replicate-specific rankings;
+cell-count thresholds; and RNA/ATAC weights. These analyses diagnose dependence
+on heavy-tailed latent dimensions and design imbalance; they do not select a
+more favourable ranking after observing HIC2. Phase 8 creates a compact summary
+and a hash-based artifact manifest.

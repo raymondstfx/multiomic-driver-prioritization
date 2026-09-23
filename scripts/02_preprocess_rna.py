@@ -12,6 +12,7 @@ from multiomic_driver.preprocessing.qc import (
     validate_metadata,
 )
 from multiomic_driver.preprocessing.rna import preprocess_rna
+from multiomic_driver.utils.artifacts import figure_dir, table_dir
 from multiomic_driver.utils.io import require_path
 from multiomic_driver.visualization.plots import save_embedding
 
@@ -30,8 +31,7 @@ def main(config: dict) -> None:
     result = preprocess_rna(result, **settings, copy=False, preserve_counts=True)
     validate_metadata(result, "RNA")
 
-    tables = Path(config["paths"]["results"]) / "tables"
-    tables.mkdir(parents=True, exist_ok=True)
+    tables = table_dir(config, "phase03")
     metrics = {
         "cells_before": cells_before,
         "cells_after": result.n_obs,
@@ -50,9 +50,11 @@ def main(config: dict) -> None:
     summary_table(metrics).to_csv(tables / "rna_qc_summary.csv", index=False)
     retention = update_cross_modality_tables(result, "RNA", tables)
     if (retention["cell_count"] == 0).any():
-        raise ValueError("RNA QC lost at least one HIC2 or NTC condition/replicate group")
+        raise ValueError(
+            "RNA QC lost at least one HIC2 or NTC condition/replicate group"
+        )
 
-    figures = Path(config["paths"]["results"]) / "figures"
+    figures = figure_dir(config, "phase03")
     for color in ("condition", "replicate"):
         save_embedding(
             result,

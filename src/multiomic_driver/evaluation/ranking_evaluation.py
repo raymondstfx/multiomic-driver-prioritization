@@ -49,17 +49,41 @@ def validate_ranking(
     if forbidden:
         raise ValueError(f"External validation genes must not be ranked: {forbidden}")
 
-    numeric = [column for column in REQUIRED_COLUMNS if column != "candidate"]
-    values = ranking[numeric].to_numpy(dtype=float)
-    if not np.isfinite(values).all():
-        raise ValueError("Ranking scores, ranks, and replicate diagnostics must be finite")
-    expected_ranks = list(range(1, len(ranking) + 1))
-    for column in ("rna_rank", "atac_rank", "multiomic_rank"):
+    score_columns = [
+        "rna_score",
+        "atac_score",
+        "rna_z",
+        "atac_z",
+        "multiomic_score",
+    ]
+    if not np.isfinite(ranking[score_columns].to_numpy(dtype=float)).all():
+        raise ValueError("Primary ranking scores must be finite")
+    for column in ("rna_replicate_cosine", "atac_replicate_cosine"):
+        values = ranking[column].to_numpy(dtype=float)
+        finite = values[np.isfinite(values)]
+        if ((finite < -1.0) | (finite > 1.0)).any():
+            raise ValueError(f"{column} finite values must lie within [-1, 1]")
+    score_for_rank = {
+        "rna_rank": "rna_score",
+        "atac_rank": "atac_score",
+        "multiomic_rank": "multiomic_score",
+    }
+    for column, score_column in score_for_rank.items():
         ranks = ranking[column].to_numpy(dtype=float)
+        scores = ranking[score_column].to_numpy(dtype=float)
+        if not np.isfinite(ranks).all():
+            raise ValueError(f"{column} must be finite")
         if not np.equal(ranks, np.floor(ranks)).all():
             raise ValueError(f"{column} must contain integer ranks")
-        if sorted(ranks.astype(int).tolist()) != expected_ranks:
-            raise ValueError(f"{column} must be a permutation of 1..{len(ranking)}")
+        if (ranks < 1).any() or (ranks > len(ranking)).any():
+            raise ValueError(f"{column} must lie within 1..{len(ranking)}")
+        expected = pd.Series(scores).rank(method="min", ascending=False).to_numpy()
+        if not np.array_equal(ranks.astype(int), expected.astype(int)):
+            raise ValueError(f"{column} is inconsistent with {score_column}")
+    if "display_order" in ranking:
+        observed = sorted(ranking["display_order"].astype(int).tolist())
+        if observed != list(range(1, len(ranking) + 1)):
+            raise ValueError("display_order must be a permutation of 1..N")
 
 
 def assign_cross_modal_profile(rna_z: float, atac_z: float) -> str:
@@ -89,12 +113,9 @@ def rank_comparison_table(ranking: pd.DataFrame) -> pd.DataFrame:
         ]
     ].copy()
     result["rna_to_multiomic_shift"] = result["rna_rank"] - result["multiomic_rank"]
-    result["atac_to_multiomic_shift"] = (
-        result["atac_rank"] - result["multiomic_rank"]
-    )
+    result["atac_to_multiomic_shift"] = result["atac_rank"] - result["multiomic_rank"]
     result["cross_modal_profile"] = [
-        assign_cross_modal_profile(row.rna_z, row.atac_z)
-        for row in result.itertuples()
+        assign_cross_modal_profile(row.rna_z, row.atac_z) for row in result.itertuples()
     ]
     return result.sort_values("multiomic_rank").reset_index(drop=True)
 
@@ -201,8 +222,7 @@ def top_candidate_comparison(ranking: pd.DataFrame, top_n: int = 5) -> pd.DataFr
     ]
     result = ranking.nsmallest(top_n, "multiomic_rank")[columns].copy()
     result["cross_modal_profile"] = [
-        assign_cross_modal_profile(row.rna_z, row.atac_z)
-        for row in result.itertuples()
+        assign_cross_modal_profile(row.rna_z, row.atac_z) for row in result.itertuples()
     ]
     return result
 

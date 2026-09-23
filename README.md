@@ -1,5 +1,7 @@
 # Background-Aware Multi-omic Driver Prioritisation
 
+[![tests](https://github.com/raymondstfx/multiomic-driver-prioritization/actions/workflows/tests.yml/badge.svg)](https://github.com/raymondstfx/multiomic-driver-prioritization/actions/workflows/tests.yml)
+
 ## Overview
 
 This repository is a reproducible proof-of-concept for prioritising candidate
@@ -29,7 +31,7 @@ to the same directory; its expected SHA-256 is recorded in `configs/data.yaml`.
 
 1. Align RNA, ATAC, and guide assignments by cell barcode.
 2. Apply simple modality-specific preprocessing.
-3. Aggregate by perturbation, treatment, and biological replicate.
+3. Compute latent-space centroids by perturbation, treatment, and replicate.
 4. Estimate background-corrected treatment effects with Difference-in-Differences.
 5. Calculate RNA and ATAC effect magnitudes.
 6. Combine standardised scores into an interpretable multi-omic ranking.
@@ -37,11 +39,29 @@ to the same directory; its expected SHA-256 is recorded in `configs/data.yaml`.
 8. Treat ZFPM2 only as downstream/external biological validation; it is not a
    pooled perturbation and cannot receive a perturbation rank.
 
-For perturbation `i`, the core contrast is:
+For perturbation $i$ and replicate $r$, the core contrast is
 
-```text
-E_i = (Dasatinib_i - Dasatinib_NT) - (DMSO_i - DMSO_NT)
-```
+$$
+E_{i,r} = (\bar{x}_{\mathrm{DASA},i,r}-\bar{x}_{\mathrm{DASA},NTC,r})
+          -(\bar{x}_{\mathrm{DMSO},i,r}-\bar{x}_{\mathrm{DMSO},NTC,r}).
+$$
+
+Replicate effects are estimated before averaging; biological replicates are
+never merged during effect estimation.
+
+## Current primary result
+
+The fixed `primary_v1` top five are YEATS4, GPBP1L1, ZBED6, HIC2, and KMT2B.
+HIC2 is RNA rank 2, ATAC rank 5, and integrated rank 4, so integration does not
+outperform RNA alone for this supported benchmark. Scores are relative to the
+12-candidate eligible cohort, and effect magnitude does not encode a resistance
+direction.
+
+Phase 7 leaves this ranking unchanged and reports alternative centroids,
+dimension removal, NTC scaling/composition, guide composition, replicate ranks,
+cell thresholds, and modality weights as sensitivities. In particular, LSI2 is
+heavy-tailed and strongly drives several top ATAC effects; this limits mechanistic
+interpretation of those candidates pending feature-level validation.
 
 ## Repository structure
 
@@ -79,7 +99,8 @@ python scripts/04_compute_effects.py --config configs/default.yaml
 python scripts/05_rank_candidates.py --config configs/default.yaml
 python scripts/06_evaluate.py --config configs/default.yaml
 python scripts/06b_zfpm2_external_validation.py --config configs/default.yaml
-python scripts/07_generate_figures.py --config configs/default.yaml
+python scripts/07_run_sensitivity.py --config configs/default.yaml
+python scripts/08_finalize_results.py --config configs/default.yaml
 ```
 
 The inspection stage records the file inventory, real matrix dimensions,
@@ -130,18 +151,18 @@ ZBED6, HIC2, and KMT2B. HIC2 ranks second by RNA, fifth by ATAC, and fourth in
 the combined ranking; integration therefore does not outperform RNA alone for
 this supported candidate.
 
-The targeted external-validation analysis reads log-normalised ZFPM2 gene
-expression from the RNA object and compares HIC2 and NTC singlets within every
-condition and replicate. Replicate-specific ZFPM2 Difference-in-Differences
-effects are calculated before their mean is reported. This descriptive result
-is downstream biological consistency, not a ZFPM2 perturbation score, direct
-HIC2-to-ZFPM2 regulation, or causal proof.
+The targeted external-validation analysis compares HIC2 and NTC singlets within
+every condition and replicate using mean and median log-normalised expression,
+fraction detected, positive-cell mean, and count-based pseudobulk log-CPM.
+Replicate-specific ZFPM2 Difference-in-Differences effects are calculated before
+their mean is reported. Metric disagreement is retained rather than hidden.
 
 ## Outputs
 
-Generated tables are written to `results/tables/`, figures to
-`results/figures/`, and logs to `results/logs/`. These outputs are excluded
-from Git apart from directory placeholders.
+Start at [`results/README.md`](results/README.md). Full generated tables and
+figures are grouped by phase, while the compact `results/summary/` and
+`results/manifest.csv` are versioned. The manifest records provenance, table
+dimensions, roles, and SHA-256 hashes.
 
 ## Limitations
 
@@ -162,8 +183,9 @@ modality for each known candidate.
 
 ## Future work
 
-Potential extensions include threshold-sensitivity analysis, replicate-
-stability weighting, alternative modality weights, feature-level RNA-ATAC
+Potential extensions include replicate-stability weighting, feature-level RNA-ATAC
 linking, gene/peak mapping, pathway analysis, GRN inference, added drugs, cell
 lines and perturbation screens, MultiVI-like joint models, and MPL-inspired
-selection modelling. These are not implemented in Phase 6.
+selection modelling. Threshold, aggregation, latent-dimension, replicate,
+guide-composition, and modality-weight sensitivity analyses are implemented in
+Phase 7 without replacing the fixed Phase 5 primary ranking.

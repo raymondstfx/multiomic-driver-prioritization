@@ -8,9 +8,10 @@ import numpy as np
 import pandas as pd
 
 from multiomic_driver.effects.background_corrected import difference_in_differences
+from multiomic_driver.utils.design import DEFAULT_DESIGN
 
-CONDITIONS = ("DMSO", "Dasatinib")
-REPLICATES = (1, 2)
+CONDITIONS = DEFAULT_DESIGN.conditions
+REPLICATES = DEFAULT_DESIGN.replicates
 COUNT_COLUMNS = {
     ("DMSO", 1): "dmso_r1_cells",
     ("DMSO", 2): "dmso_r2_cells",
@@ -52,10 +53,14 @@ def validate_eligibility_for_effects(
         missing_groups = [
             group for group, column in COUNT_COLUMNS.items() if pd.isna(row[column])
         ]
-        reason = str(row["exclusion_reason"]) if pd.notna(row["exclusion_reason"]) else ""
+        reason = (
+            str(row["exclusion_reason"]) if pd.notna(row["exclusion_reason"]) else ""
+        )
         if missing_groups:
             if pd.notna(row["min_group_cells"]):
-                raise ValueError("Missing candidate groups must keep min_group_cells as NA")
+                raise ValueError(
+                    "Missing candidate groups must keep min_group_cells as NA"
+                )
             if bool(row["phase4_eligible"]):
                 raise ValueError("A candidate with a missing group cannot be eligible")
             for condition, replicate in missing_groups:
@@ -71,8 +76,7 @@ def validate_eligibility_for_effects(
             ]
             for (condition, replicate), count in low_groups:
                 token = (
-                    f"below_min_{condition}_R{replicate}"
-                    f"({count}<{min_cells_per_group})"
+                    f"below_min_{condition}_R{replicate}({count}<{min_cells_per_group})"
                 )
                 if token not in reason:
                     raise ValueError(f"Low-count exclusion lacks reason: {token}")
@@ -145,9 +149,7 @@ def candidate_replicate_effects(
                 "replicate": replicate,
                 "dmso_candidate_cells": counts[("DMSO", "candidate")],
                 "dmso_ntc_cells": counts[("DMSO", "NTC")],
-                "dasatinib_candidate_cells": counts[
-                    ("Dasatinib", "candidate")
-                ],
+                "dasatinib_candidate_cells": counts[("Dasatinib", "candidate")],
                 "dasatinib_ntc_cells": counts[("Dasatinib", "NTC")],
             }
         )
@@ -173,9 +175,7 @@ def compute_modality_effects(
     """Compute replicate-specific and mean effects for one modality."""
     replicate_tables = []
     summary_rows = []
-    dimensions = [
-        f"{dimension_prefix}{index + 1}" for index in range(matrix.shape[1])
-    ]
+    dimensions = [f"{dimension_prefix}{index + 1}" for index in range(matrix.shape[1])]
     for candidate in candidates:
         effects, labels = candidate_replicate_effects(
             matrix,

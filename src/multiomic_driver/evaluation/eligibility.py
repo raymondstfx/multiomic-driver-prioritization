@@ -6,8 +6,10 @@ from collections.abc import Sequence
 
 import pandas as pd
 
-CONDITIONS = ("DMSO", "Dasatinib")
-REPLICATES = (1, 2)
+from multiomic_driver.utils.design import DEFAULT_DESIGN
+
+CONDITIONS = DEFAULT_DESIGN.conditions
+REPLICATES = DEFAULT_DESIGN.replicates
 GROUP_COLUMNS = {
     ("DMSO", 1): "dmso_r1_cells",
     ("DMSO", 2): "dmso_r2_cells",
@@ -76,9 +78,7 @@ def targeting_singlets(metadata: pd.DataFrame) -> pd.DataFrame:
         targeting = ntc_values.notna() & ~ntc_values.fillna(False).astype(bool)
     else:
         targeting = ntc_values.astype(str).str.lower().eq("false")
-    return metadata.loc[
-        singlet & targeting & metadata["target_gene"].notna()
-    ].copy()
+    return metadata.loc[singlet & targeting & metadata["target_gene"].notna()].copy()
 
 
 def count_cells_by_candidate_group(metadata: pd.DataFrame) -> pd.DataFrame:
@@ -146,12 +146,10 @@ def evaluate_candidate_eligibility(
         axis=1, skipna=not require_all_groups
     )
     result["min_group_cells"] = result["min_group_cells"].astype("Int64")
-    result["meets_min_cells"] = result["min_group_cells"].ge(
-        min_cells_per_group
-    ).fillna(False)
-    coverage_ok = (
-        result["all_four_groups_present"] if require_all_groups else True
+    result["meets_min_cells"] = (
+        result["min_group_cells"].ge(min_cells_per_group).fillna(False)
     )
+    coverage_ok = result["all_four_groups_present"] if require_all_groups else True
     result["phase4_eligible"] = coverage_ok & result["meets_min_cells"]
     reasons = []
     for _, row in result.iterrows():
@@ -178,17 +176,19 @@ def ntc_group_coverage(
     """Count pooled NTC singlets and assess reference coverage."""
     singlet = metadata["guide_assignment_status"].astype(str).eq("singlet")
     ntc = _normalised_boolean(metadata["is_non_targeting"])
-    counts = metadata.loc[singlet & ntc].groupby(
-        ["condition", "replicate"], observed=True
-    ).size()
+    counts = (
+        metadata.loc[singlet & ntc]
+        .groupby(["condition", "replicate"], observed=True)
+        .size()
+    )
     index = pd.MultiIndex.from_product(
         [CONDITIONS, REPLICATES], names=["condition", "replicate"]
     )
     result = counts.reindex(index).rename("cell_count").reset_index()
     result["cell_count"] = result["cell_count"].astype("Int64")
-    result["meets_min_cells"] = result["cell_count"].ge(
-        min_cells_per_group
-    ).fillna(False)
+    result["meets_min_cells"] = (
+        result["cell_count"].ge(min_cells_per_group).fillna(False)
+    )
     return result
 
 
@@ -201,9 +201,7 @@ def readiness_summary(
 ) -> pd.DataFrame:
     """Build the explicit Phase 4 gate summary."""
     hic2 = eligibility.loc[eligibility["target_gene"].eq(required_candidate)]
-    hic2_eligible = bool(
-        len(hic2) == 1 and bool(hic2.iloc[0]["phase4_eligible"])
-    )
+    hic2_eligible = bool(len(hic2) == 1 and bool(hic2.iloc[0]["phase4_eligible"]))
     ntc_ready = bool(
         len(ntc_coverage) == len(GROUP_COLUMNS)
         and ntc_coverage["meets_min_cells"].all()

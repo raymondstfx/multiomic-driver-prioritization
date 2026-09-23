@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 
 import pandas as pd
 from _common import run_stage
@@ -11,6 +10,7 @@ from _common import run_stage
 from multiomic_driver.ranking.atac_score import rank_atac_effects
 from multiomic_driver.ranking.multimodal_score import combine_modality_rankings
 from multiomic_driver.ranking.rna_score import rank_rna_effects
+from multiomic_driver.utils.artifacts import figure_dir, table_dir
 from multiomic_driver.utils.io import require_path
 from multiomic_driver.visualization.ranking_plots import (
     plot_candidate_ranking,
@@ -31,11 +31,15 @@ def _eligible_candidates(table: pd.DataFrame) -> set[str]:
 
 
 def main(config: dict) -> None:
-    tables = Path(config["paths"]["results"]) / "tables"
-    figures = Path(config["paths"]["results"]) / "figures"
-    rna_path = require_path(tables / "rna_effect_summary.csv")
-    atac_path = require_path(tables / "atac_effect_summary.csv")
-    eligibility_path = require_path(tables / "candidate_phase4_eligibility.csv")
+    effect_tables = table_dir(config, "phase04")
+    readiness_tables = table_dir(config, "phase035")
+    tables = table_dir(config, "phase05")
+    figures = figure_dir(config, "phase05")
+    rna_path = require_path(effect_tables / "rna_effect_summary.csv")
+    atac_path = require_path(effect_tables / "atac_effect_summary.csv")
+    eligibility_path = require_path(
+        readiness_tables / "candidate_phase4_eligibility.csv"
+    )
     LOGGER.info("RNA input: %s", rna_path)
     LOGGER.info("ATAC input: %s", atac_path)
     if config["ranking"]["combine_method"] != "mean_zscore":
@@ -53,6 +57,7 @@ def main(config: dict) -> None:
         raise ValueError("External validation genes cannot be ranked perturbations")
 
     columns = [
+        "display_order",
         "candidate",
         "rna_score",
         "rna_z",
@@ -98,8 +103,14 @@ def main(config: dict) -> None:
                 "rna_atac_spearman_correlation",
                 ranking["rna_z"].corr(ranking["atac_z"], method="spearman"),
             ),
-            ("top_rna_candidate", ranking.nsmallest(1, "rna_rank").iloc[0]["candidate"]),
-            ("top_atac_candidate", ranking.nsmallest(1, "atac_rank").iloc[0]["candidate"]),
+            (
+                "top_rna_candidate",
+                ranking.nsmallest(1, "rna_rank").iloc[0]["candidate"],
+            ),
+            (
+                "top_atac_candidate",
+                ranking.nsmallest(1, "atac_rank").iloc[0]["candidate"],
+            ),
             ("top_multiomic_candidate", ranking.iloc[0]["candidate"]),
         ],
         columns=["metric", "value"],
@@ -109,9 +120,7 @@ def main(config: dict) -> None:
     plot_rna_vs_atac(ranking, figures / "rna_vs_atac_scores.png")
     plot_rna_vs_atac_zscores(ranking, figures / "rna_vs_atac_zscores.png")
     plot_candidate_ranking(ranking, figures / "candidate_ranking.png")
-    plot_modality_rank_comparison(
-        ranking, figures / "modality_rank_comparison.png"
-    )
+    plot_modality_rank_comparison(ranking, figures / "modality_rank_comparison.png")
     plot_replicate_consistency(ranking, figures / "replicate_consistency.png")
 
     LOGGER.info("Ranked %d primary candidates", len(ranking))

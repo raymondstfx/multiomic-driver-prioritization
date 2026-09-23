@@ -13,6 +13,7 @@ from multiomic_driver.effects.replicate_aware import (
     validate_eligibility_for_effects,
 )
 from multiomic_driver.preprocessing.qc import validate_metadata
+from multiomic_driver.utils.artifacts import table_dir
 from multiomic_driver.utils.io import require_path
 
 LOGGER = logging.getLogger("04_compute_effects")
@@ -20,19 +21,20 @@ LOGGER = logging.getLogger("04_compute_effects")
 
 def main(config: dict) -> None:
     processed = Path(config["paths"]["processed"])
-    tables = Path(config["paths"]["results"]) / "tables"
+    readiness_tables = table_dir(config, "phase035")
+    tables = table_dir(config, "phase04")
     rna_path = require_path(processed / "rna_processed.h5ad")
     atac_path = require_path(processed / "atac_processed.h5ad")
-    eligibility_path = require_path(tables / "candidate_phase4_eligibility.csv")
+    eligibility_path = require_path(
+        readiness_tables / "candidate_phase4_eligibility.csv"
+    )
     eligibility = pd.read_csv(eligibility_path)
     minimum = int(config["phase4"]["min_cells_per_group"])
     if not bool(config["phase4"]["require_all_groups"]):
         raise ValueError("Primary Phase 4 effects require all four groups")
-    if config["pseudobulk"]["method"] != "mean":
-        raise ValueError("Phase 4 latent-space pseudobulk currently requires mean")
-    validate_eligibility_for_effects(
-        eligibility, min_cells_per_group=minimum
-    )
+    if config["aggregation"]["method"] != "latent_centroid_mean":
+        raise ValueError("Phase 4 primary analysis requires latent_centroid_mean")
+    validate_eligibility_for_effects(eligibility, min_cells_per_group=minimum)
     candidates = eligibility.loc[
         eligibility["phase4_eligible"].astype(bool), "target_gene"
     ].tolist()

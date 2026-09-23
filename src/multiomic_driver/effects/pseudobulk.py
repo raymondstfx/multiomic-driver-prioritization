@@ -1,4 +1,8 @@
-"""Aggregate cells into perturbation-treatment-replicate units."""
+"""Compatibility helper for generic cell aggregation.
+
+The primary workflow uses replicate-level latent centroids in
+``effects.replicate_aware``; this module is not a raw-count pseudobulk method.
+"""
 
 from __future__ import annotations
 
@@ -32,4 +36,3 @@ def aggregate_pseudobulk(
         vectors.append(np.asarray(aggregate).ravel())
         labels.append(label if isinstance(label, tuple) else (label,))
     return np.vstack(vectors), pd.DataFrame(labels, columns=groupby)
-

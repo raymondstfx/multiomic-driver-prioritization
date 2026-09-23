@@ -1,4 +1,4 @@
-"""Post-hoc evaluation against externally supported candidates."""
+"""Compatibility API for post-hoc candidate lookup."""
 
 from __future__ import annotations
 

@@ -78,15 +78,11 @@ def test_candidate_mismatch_and_duplicates_fail_loudly() -> None:
     atac = pd.DataFrame({"candidate": ["A", "C"], "atac_score": [1.0, 2.0]})
     with pytest.raises(ValueError, match="candidate sets differ"):
         combine_modality_rankings(rna, atac)
-    duplicated = pd.DataFrame(
-        {"candidate": ["A", "A"], "rna_score": [1.0, 2.0]}
-    )
+    duplicated = pd.DataFrame({"candidate": ["A", "A"], "rna_score": [1.0, 2.0]})
     with pytest.raises(ValueError, match="duplicate candidates"):
         combine_modality_rankings(
             duplicated,
-            pd.DataFrame(
-                {"candidate": ["A", "B"], "atac_score": [1.0, 2.0]}
-            ),
+            pd.DataFrame({"candidate": ["A", "B"], "atac_score": [1.0, 2.0]}),
         )
 
 

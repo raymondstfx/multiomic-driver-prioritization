@@ -114,9 +114,7 @@ def test_atac_preprocessing_filters_peaks_and_preserves_metadata() -> None:
     data = ad.AnnData(
         counts,
         obs=_metadata(6),
-        var=pd.DataFrame(
-            index=["chr1:0-10", "chr1:5-15", "chr1:20-30", "chr1:40-50"]
-        ),
+        var=pd.DataFrame(index=["chr1:0-10", "chr1:5-15", "chr1:20-30", "chr1:40-50"]),
     )
     result = preprocess_atac(
         data,

@@ -114,4 +114,3 @@ def discover_experiments(raw_dir: str | Path) -> list[ExperimentFiles]:
                 )
             )
     return experiments
-

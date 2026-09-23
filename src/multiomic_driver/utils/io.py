@@ -33,6 +33,7 @@ def load_project_config(path: str | Path) -> dict[str, Any]:
         if not child.is_absolute():
             child = base / child
         merged.update(load_yaml(child))
+    merged["_project_root"] = str(base)
     return merged
 
 

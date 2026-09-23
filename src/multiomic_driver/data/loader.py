@@ -105,7 +105,9 @@ def load_rna_sample(
     selected = features["feature_type"].eq("Gene Expression").to_numpy()
     matrix = matrix[selected].T.tocsr()
     selected_features = features.loc[selected].copy()
-    selected_features.index = pd.Index(selected_features.pop("feature_id"), name="feature_id")
+    selected_features.index = pd.Index(
+        selected_features.pop("feature_id"), name="feature_id"
+    )
     return AnnData(X=matrix, obs=pd.DataFrame(index=barcodes), var=selected_features)
 
 
@@ -157,9 +159,7 @@ def load_guide_assignments(guide_path: str | Path) -> pd.DataFrame:
     return table
 
 
-def load_guide_call_matrix(
-    archive_path: str | Path, group_key: str
-) -> pd.DataFrame:
+def load_guide_call_matrix(archive_path: str | Path, group_key: str) -> pd.DataFrame:
     """Read an official boolean guide-call RDS directly from the author archive."""
     path = _require_file(archive_path)
     suffix = f"/{group_key}_calls.rds"
@@ -208,7 +208,9 @@ def stream_multiome_to_h5ad(
     if not rna_selected.any() or not atac_selected.any():
         raise ValueError("Expected both Gene Expression and Peaks feature rows")
     if np.any(rna_selected & atac_selected) or not np.all(rna_selected | atac_selected):
-        unknown = sorted(set(features.loc[~(rna_selected | atac_selected), "feature_type"]))
+        unknown = sorted(
+            set(features.loc[~(rna_selected | atac_selected), "feature_type"])
+        )
         raise ValueError(f"Unsupported feature types: {unknown}")
 
     rna_path = Path(rna_output)
@@ -226,9 +228,7 @@ def stream_multiome_to_h5ad(
 
     rna_matrix = cells_by_features[:, rna_selected].tocsr()
     rna_features = features.loc[rna_selected].copy()
-    rna_features.index = pd.Index(
-        rna_features.pop("feature_id"), name="feature_id"
-    )
+    rna_features.index = pd.Index(rna_features.pop("feature_id"), name="feature_id")
     AnnData(X=rna_matrix, obs=obs.copy(), var=rna_features).write_h5ad(
         rna_path, compression="lzf"
     )
@@ -237,9 +237,7 @@ def stream_multiome_to_h5ad(
 
     atac_matrix = cells_by_features[:, atac_selected].tocsr()
     atac_features = features.loc[atac_selected].copy()
-    atac_features.index = pd.Index(
-        atac_features.pop("feature_id"), name="feature_id"
-    )
+    atac_features.index = pd.Index(atac_features.pop("feature_id"), name="feature_id")
     AnnData(X=atac_matrix, obs=obs.copy(), var=atac_features).write_h5ad(
         atac_path, compression="lzf"
     )

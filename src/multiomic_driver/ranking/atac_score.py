@@ -41,9 +41,9 @@ def rank_atac_effects(effect_summary: pd.DataFrame) -> pd.DataFrame:
             "atac_r2_effect_norm": effect_summary["r2_effect_norm"].astype(float),
         }
     )
-    result["atac_rank"] = result["atac_score"].rank(
-        method="min", ascending=False
-    ).astype(int)
-    return result.sort_values(
-        ["atac_rank", "candidate"], kind="stable"
-    ).reset_index(drop=True)
+    result["atac_rank"] = (
+        result["atac_score"].rank(method="min", ascending=False).astype(int)
+    )
+    return result.sort_values(["atac_rank", "candidate"], kind="stable").reset_index(
+        drop=True
+    )

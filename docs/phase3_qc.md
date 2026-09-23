@@ -61,4 +61,5 @@ from perturbation ranking and reserved for downstream/external validation.
 
 Both processed matrices and their 30-dimensional latent representations contain
 only finite values. Source metadata values and cell ordering were preserved.
-The synthetic test suite passes (16 tests), and Ruff reports no violations.
+The automated test suite and Ruff should be run from the repository root; the
+current test count is intentionally not hard-coded in this generated QC note.

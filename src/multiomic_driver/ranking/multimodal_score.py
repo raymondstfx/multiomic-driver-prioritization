@@ -46,12 +46,13 @@ def combine_modality_rankings(
     result["rna_z"] = zscore(result["rna_score"])
     result["atac_z"] = zscore(result["atac_score"])
     result["multiomic_score"] = (result["rna_z"] + result["atac_z"]) / 2.0
-    result["multiomic_rank"] = result["multiomic_score"].rank(
-        method="min", ascending=False
-    ).astype(int)
+    result["multiomic_rank"] = (
+        result["multiomic_score"].rank(method="min", ascending=False).astype(int)
+    )
     result = result.sort_values(
         ["multiomic_rank", "candidate"], ascending=[True, True], kind="stable"
     ).reset_index(drop=True)
+    result.insert(0, "display_order", np.arange(1, len(result) + 1))
     return result
 
 

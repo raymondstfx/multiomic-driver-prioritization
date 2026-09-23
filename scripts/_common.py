@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from multiomic_driver.utils.design import ExperimentalDesign
 from multiomic_driver.utils.io import load_project_config
 from multiomic_driver.utils.logging import configure_logging
 
@@ -22,8 +23,16 @@ def run_stage(name: str, action: Callable[[dict], None]) -> None:
     logger = configure_logging(name)
     try:
         logger.info("Starting stage with config %s", arguments.config)
-        action(load_project_config(arguments.config))
+        config = load_project_config(arguments.config)
+        ExperimentalDesign.from_config(config)
+        action(config)
         logger.info("Stage completed")
-    except (FileNotFoundError, OSError, TypeError, ValueError, NotImplementedError) as error:
+    except (
+        FileNotFoundError,
+        OSError,
+        TypeError,
+        ValueError,
+        NotImplementedError,
+    ) as error:
         logger.error("%s", error)
         raise SystemExit(2) from error

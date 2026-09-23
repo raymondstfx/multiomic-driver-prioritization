@@ -42,4 +42,3 @@ def parse_sample_name(path: str | Path) -> SampleMetadata:
         modality=canonical[values["modality"].lower()],
         replicate=int(values["replicate"]),
     )
-

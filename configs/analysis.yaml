@@ -16,8 +16,8 @@ phase4:
   min_cells_per_group: 20
   require_all_groups: true
 
-pseudobulk:
-  method: mean
+aggregation:
+  method: latent_centroid_mean
 
 ranking:
   combine_method: mean_zscore
@@ -29,3 +29,11 @@ validation:
   top_n_candidates: 5
   replicate_consistency_moderate: 0.5
   replicate_consistency_positive: 0.0
+  literature_evidence_path: configs/literature_evidence.yaml
+
+sensitivity:
+  cell_thresholds: [10, 15, 20, 25, 30]
+  modality_rna_weights: [0.0, 0.25, 0.5, 0.75, 1.0]
+  winsor_fraction: 0.01
+  trim_fraction: 0.05
+  primary_analysis_version: primary_v1

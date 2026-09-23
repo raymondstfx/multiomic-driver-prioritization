@@ -12,6 +12,7 @@ from multiomic_driver.preprocessing.qc import (
     update_cross_modality_tables,
     validate_metadata,
 )
+from multiomic_driver.utils.artifacts import figure_dir, table_dir
 from multiomic_driver.utils.io import require_path
 from multiomic_driver.visualization.plots import save_embedding
 
@@ -30,8 +31,7 @@ def main(config: dict) -> None:
     result = preprocess_atac(result, **settings, copy=False)
     validate_metadata(result, "ATAC")
 
-    tables = Path(config["paths"]["results"]) / "tables"
-    tables.mkdir(parents=True, exist_ok=True)
+    tables = table_dir(config, "phase03")
     summary_table(
         {
             "cells_before": cells_before,
@@ -44,9 +44,9 @@ def main(config: dict) -> None:
             "features_after_filtering": result.n_vars,
             "input_peaks_collapsed_by_harmonization": features_before
             - result.uns["preprocessing"]["consensus_features"],
-            "consensus_features_removed_by_filtering": result.uns[
-                "preprocessing"
-            ]["consensus_features"]
+            "consensus_features_removed_by_filtering": result.uns["preprocessing"][
+                "consensus_features"
+            ]
             - result.n_vars,
             "lsi_dimensions": result.obsm["X_lsi"].shape[1],
             "lsi1_retained": True,
@@ -54,7 +54,9 @@ def main(config: dict) -> None:
     ).to_csv(tables / "atac_qc_summary.csv", index=False)
     retention = update_cross_modality_tables(result, "ATAC", tables)
     if (retention["cell_count"] == 0).any():
-        raise ValueError("ATAC QC lost at least one HIC2 or NTC condition/replicate group")
+        raise ValueError(
+            "ATAC QC lost at least one HIC2 or NTC condition/replicate group"
+        )
 
     rna_output = Path(config["paths"]["processed"]) / "rna_processed.h5ad"
     if rna_output.exists():
@@ -71,7 +73,7 @@ def main(config: dict) -> None:
         ).to_csv(tables / "post_qc_cell_overlap.csv", index=False)
         rna.file.close()
 
-    figures = Path(config["paths"]["results"]) / "figures"
+    figures = figure_dir(config, "phase03")
     for color in ("condition", "replicate"):
         save_embedding(
             result,

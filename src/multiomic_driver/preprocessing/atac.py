@@ -21,9 +21,7 @@ def collapse_overlapping_peaks(adata: AnnData) -> AnnData:
     )
     if coordinates.isna().any(axis=None):
         raise ValueError("ATAC feature IDs must use chromosome:start-end coordinates")
-    coordinates[["start", "end"]] = coordinates[["start", "end"]].astype(
-        np.int64
-    )
+    coordinates[["start", "end"]] = coordinates[["start", "end"]].astype(np.int64)
     coordinates["original_index"] = np.arange(adata.n_vars)
     ordered = coordinates.sort_values(["chromosome", "start", "end"])
 
@@ -160,9 +158,7 @@ def preprocess_atac(
     result.uns["lsi"] = {
         "singular_values": model.singular_values_.astype(np.float32),
         "explained_variance": model.explained_variance_.astype(np.float32),
-        "explained_variance_ratio": model.explained_variance_ratio_.astype(
-            np.float32
-        ),
+        "explained_variance_ratio": model.explained_variance_ratio_.astype(np.float32),
     }
     result.uns["preprocessing"] = {
         "tfidf_formula": "TF_ij * log(1 + N / (1 + DF_j))",

@@ -26,7 +26,11 @@ def save_mitochondrial_qc_figures(
     fig, axis = plt.subplots(figsize=(7, 5))
     axis.hist(values, bins=80, color="#4c78a8", alpha=0.85)
     axis.axvline(np.median(values), color="#e45756", linestyle="--", label="median")
-    axis.set(xlabel="Mitochondrial counts (%)", ylabel="Cells", title="RNA mitochondrial fraction")
+    axis.set(
+        xlabel="Mitochondrial counts (%)",
+        ylabel="Cells",
+        title="RNA mitochondrial fraction",
+    )
     axis.legend(frameon=False)
     fig.tight_layout()
     fig.savefig(directory / "rna_mt_distribution.png", dpi=300)
@@ -49,7 +53,9 @@ def save_mitochondrial_qc_figures(
     fig.savefig(directory / "rna_mt_by_condition.png", dpi=300)
     plt.close(fig)
 
-    groups = [(condition, replicate) for condition in conditions for replicate in (1, 2)]
+    groups = [
+        (condition, replicate) for condition in conditions for replicate in (1, 2)
+    ]
     group_values = [
         metadata.loc[
             metadata["condition"].astype(str).eq(condition)

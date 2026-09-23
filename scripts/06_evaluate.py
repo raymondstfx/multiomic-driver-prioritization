@@ -16,6 +16,7 @@ from multiomic_driver.evaluation.ranking_evaluation import (
     top_candidate_comparison,
     validate_ranking,
 )
+from multiomic_driver.utils.artifacts import figure_dir, table_dir
 from multiomic_driver.utils.io import load_yaml, require_path
 from multiomic_driver.visualization.ranking_plots import plot_top5_candidate_evidence
 
@@ -28,12 +29,13 @@ def _write(table: pd.DataFrame, path: Path) -> None:
 
 
 def main(config: dict) -> None:
-    tables = Path(config["paths"]["results"]) / "tables"
-    figures = Path(config["paths"]["results"]) / "figures"
-    tables.mkdir(parents=True, exist_ok=True)
-    figures.mkdir(parents=True, exist_ok=True)
+    ranking_tables = table_dir(config, "phase05")
+    tables = table_dir(config, "phase06")
+    figures = figure_dir(config, "phase06")
 
-    ranking_path = require_path(tables / "candidate_ranking.csv", "Phase 5 ranking")
+    ranking_path = require_path(
+        ranking_tables / "candidate_ranking.csv", "Phase 5 ranking"
+    )
     ranking = pd.read_csv(ranking_path)
     settings = config["validation"]
     validate_ranking(
@@ -42,7 +44,9 @@ def main(config: dict) -> None:
         required_candidates=settings["rankable_candidates"],
         excluded_candidates=settings["external_validation_genes"],
     )
-    LOGGER.info("Validated ranking input %s with %d candidates", ranking_path, len(ranking))
+    LOGGER.info(
+        "Validated ranking input %s with %d candidates", ranking_path, len(ranking)
+    )
 
     comparison = rank_comparison_table(ranking)
     correlations = rank_correlation_summary(ranking)
@@ -54,7 +58,8 @@ def main(config: dict) -> None:
     hic2 = hic2_validation_table(ranking)
     top5 = top_candidate_comparison(ranking, int(settings["top_n_candidates"]))
 
-    evidence_config = load_yaml("configs/literature_evidence.yaml")
+    evidence_path = Path(config["_project_root"]) / settings["literature_evidence_path"]
+    evidence_config = load_yaml(evidence_path)
     top5_with_ranks = top5.merge(
         ranking[["candidate", "rna_rank", "atac_rank"]], on="candidate"
     )

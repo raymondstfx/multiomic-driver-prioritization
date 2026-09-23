@@ -10,10 +10,4 @@ def difference_in_differences(
     untreated_control,
 ):
     """Calculate a scalar or vector background-corrected treatment effect."""
-    return (
-        treated_perturbed
-        - treated_control
-        - untreated_perturbed
-        + untreated_control
-    )
-
+    return treated_perturbed - treated_control - untreated_perturbed + untreated_control

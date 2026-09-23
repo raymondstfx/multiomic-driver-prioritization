@@ -125,9 +125,9 @@ def build_cell_metadata(
     metadata["atac_present"] = metadata["cell_barcode"].isin(atac)
     metadata = metadata.join(guide, on="cell_barcode")
     metadata["guide_capture_present"] = metadata["guide_assignment_status"].notna()
-    metadata["guide_assignment_status"] = metadata[
-        "guide_assignment_status"
-    ].fillna("not_in_guide_calls")
+    metadata["guide_assignment_status"] = metadata["guide_assignment_status"].fillna(
+        "not_in_guide_calls"
+    )
     metadata["n_guides_called"] = metadata["n_guides_called"].fillna(0).astype(int)
     metadata["guide_present"] = metadata["guide_assignment_status"].eq("singlet")
     metadata["is_non_targeting"] = metadata["is_non_targeting"].astype("boolean")
@@ -175,4 +175,3 @@ def metadata_for_modality(
     )
     result["is_non_targeting"] = result["is_non_targeting"].fillna("unknown")
     return result
-

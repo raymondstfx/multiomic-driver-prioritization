@@ -34,11 +34,11 @@ groups. No absent group is represented by a zero vector or zero effect.
 Generated, Git-ignored tables are:
 
 ```text
-results/tables/rna_replicate_effects.csv
-results/tables/rna_effect_summary.csv
-results/tables/atac_replicate_effects.csv
-results/tables/atac_effect_summary.csv
-results/tables/phase4_effect_manifest.csv
+results/tables/phase04_effects/rna_replicate_effects.csv
+results/tables/phase04_effects/rna_effect_summary.csv
+results/tables/phase04_effects/atac_replicate_effects.csv
+results/tables/phase04_effects/atac_effect_summary.csv
+results/tables/phase04_effects/phase4_effect_manifest.csv
 ```
 
 The manifest records 12 candidates, 24 replicate-specific rows, 30 dimensions

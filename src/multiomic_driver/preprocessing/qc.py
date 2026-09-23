@@ -112,9 +112,7 @@ def hic2_ntc_counts(adata: AnnData, modality: str) -> pd.DataFrame:
     is_ntc = _is_non_targeting(singlets)
     singlets["category"] = "other"
     singlets.loc[is_ntc, "category"] = "NTC"
-    singlets.loc[singlets["target_gene"].astype(str).eq("HIC2"), "category"] = (
-        "HIC2"
-    )
+    singlets.loc[singlets["target_gene"].astype(str).eq("HIC2"), "category"] = "HIC2"
     observed = (
         singlets[singlets["category"].isin(["HIC2", "NTC"])]
         .groupby(["category", "condition", "replicate"], observed=True)
@@ -153,9 +151,7 @@ def update_cross_modality_tables(
         modality,
     )
     retention = hic2_ntc_counts(adata, modality)
-    _replace_modality_rows(
-        directory / "hic2_ntc_retention.csv", retention, modality
-    )
+    _replace_modality_rows(directory / "hic2_ntc_retention.csv", retention, modality)
     return retention
 
 
