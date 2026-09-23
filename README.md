@@ -78,6 +78,7 @@ python scripts/03b_phase4_readiness.py --config configs/default.yaml
 python scripts/04_compute_effects.py --config configs/default.yaml
 python scripts/05_rank_candidates.py --config configs/default.yaml
 python scripts/06_evaluate.py --config configs/default.yaml
+python scripts/06b_zfpm2_external_validation.py --config configs/default.yaml
 python scripts/07_generate_figures.py --config configs/default.yaml
 ```
 
@@ -122,6 +123,20 @@ SD (`ddof=0`), then combined with equal weight. Replicate consistency remains a
 separate diagnostic. HIC2 is inspected only after the label-free ranking has
 been finalized; ZFPM2 is not a ranked perturbation.
 
+Phase 6 leaves all Phase 5 scores and ranks unchanged. It compares modality
+ranks, assigns sign-based cross-modal profiles, and reports replicate cosine
+categories as separate annotations. The fixed top five are YEATS4, GPBP1L1,
+ZBED6, HIC2, and KMT2B. HIC2 ranks second by RNA, fifth by ATAC, and fourth in
+the combined ranking; integration therefore does not outperform RNA alone for
+this supported candidate.
+
+The targeted external-validation analysis reads log-normalised ZFPM2 gene
+expression from the RNA object and compares HIC2 and NTC singlets within every
+condition and replicate. Replicate-specific ZFPM2 Difference-in-Differences
+effects are calculated before their mean is reported. This descriptive result
+is downstream biological consistency, not a ZFPM2 perturbation score, direct
+HIC2-to-ZFPM2 regulation, or causal proof.
+
 ## Outputs
 
 Generated tables are written to `results/tables/`, figures to
@@ -137,8 +152,18 @@ score remains evidence prioritisation, not causal proof. HIC2 is used only for
 post-ranking evaluation. ZFPM2 is absent from the guide library and is reserved
 for separate downstream biological validation.
 
+This proof-of-concept uses one K562 dataset, one Dasatinib/DMSO comparison, two
+biological replicates, and 12 primary perturbations passing a configurable
+20-cell-per-group threshold. Scores are latent-space effect magnitudes with
+simple equal modality weights; there are no learned weights, full regulatory
+network reconstruction, MPL implementation, or selection-coefficient
+estimates. A multi-omic rank does not necessarily improve on the best single
+modality for each known candidate.
+
 ## Future work
 
-Potential extensions include replicate-stability weighting, gene-to-peak
-linking, pathway-level influence analogues, and more advanced representations
-after the basic alignment and background correction have been validated.
+Potential extensions include threshold-sensitivity analysis, replicate-
+stability weighting, alternative modality weights, feature-level RNA-ATAC
+linking, gene/peak mapping, pathway analysis, GRN inference, added drugs, cell
+lines and perturbation screens, MultiVI-like joint models, and MPL-inspired
+selection modelling. These are not implemented in Phase 6.

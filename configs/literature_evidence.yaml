@@ -1,0 +1,51 @@
+YEATS4:
+  evidence_category: chromatin/transcriptional role
+  literature_summary: >-
+    An original functional study identified YEATS4 as an oncogenic regulator in
+    non-small-cell lung cancer, including effects on p53-dependent transcription;
+    this is mechanistic context from another cancer type, not evidence specific to
+    K562, CML, or Dasatinib.
+  direct_relevance_to_dasatinib: "no"
+  direct_relevance_to_k562_or_cml: "no"
+  source: https://pmc.ncbi.nlm.nih.gov/articles/PMC3959870/
+  notes: No direct Dasatinib or CML validation was found in the focused review.
+GPBP1L1:
+  evidence_category: no clear supporting evidence found
+  literature_summary: >-
+    The focused primary-literature search did not identify direct experimental
+    evidence connecting GPBP1L1 to Dasatinib response, K562, or CML.
+  direct_relevance_to_dasatinib: "no"
+  direct_relevance_to_k562_or_cml: "no"
+  source: https://www.ncbi.nlm.nih.gov/gene/60313
+  notes: NCBI Gene is supplied for gene identity only, not as biological validation.
+ZBED6:
+  evidence_category: chromatin/transcriptional role
+  literature_summary: >-
+    The original discovery study established ZBED6 as a transcriptional regulator
+    of IGF2 and used ENCODE occupancy data that included K562, but its functional
+    experiments concerned growth and muscle biology rather than CML or Dasatinib.
+  direct_relevance_to_dasatinib: "no"
+  direct_relevance_to_k562_or_cml: "no"
+  source: https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1000256
+  notes: K562 occupancy context is not equivalent to disease- or drug-specific validation.
+HIC2:
+  evidence_category: direct experimental evidence
+  literature_summary: >-
+    The authoritative CAT-ATAC BioProject record reports a Dasatinib-resistance
+    regulatory network indirectly activated by HIC2 in this K562 perturbation
+    dataset.
+  direct_relevance_to_dasatinib: "yes"
+  direct_relevance_to_k562_or_cml: "yes"
+  source: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA1220572
+  notes: This is the source dataset record; HIC2 was not used to tune the ranking.
+KMT2B:
+  evidence_category: chromatin/transcriptional role
+  literature_summary: >-
+    Original mechanistic work shows that KMT2B maintains H3K4me3, accessible
+    chromatin, RNA polymerase II association, and transcription at a CpG-island
+    promoter. The study used mouse embryonic stem cells and is not CML- or
+    Dasatinib-specific.
+  direct_relevance_to_dasatinib: "no"
+  direct_relevance_to_k562_or_cml: "no"
+  source: https://pmc.ncbi.nlm.nih.gov/articles/PMC3624271/
+  notes: Mechanistic chromatin evidence only; no direct drug-resistance validation.

@@ -25,3 +25,7 @@ ranking:
 validation:
   rankable_candidates: [HIC2]
   external_validation_genes: [ZFPM2]
+  expected_primary_candidates: 12
+  top_n_candidates: 5
+  replicate_consistency_moderate: 0.5
+  replicate_consistency_positive: 0.0

@@ -86,3 +86,40 @@ labels are not ranking inputs.
 
 This method provides treatment-specific perturbation evidence and cross-modal
 support. It is not MPL inference and is not, by itself, causal proof.
+
+## Phase 6 evaluation and external validation
+
+Phase 6 consumes the fixed `candidate_ranking.csv`; it does not recompute or
+modify Phase 5 scores. The input gate requires 12 unique primary candidates,
+finite scores and diagnostics, complete integer ranks, HIC2 presence, and ZFPM2
+absence. Rank shifts are `single_modality_rank - multiomic_rank`, so a positive
+value means improvement under integration. Spearman correlations are reported
+descriptively because the candidate set is small.
+
+Cross-modal profiles are derived only from the signs of the two modality
+z-scores. Replicate cosines are classified using configurable thresholds
+(`>=0.5` moderate/high, `0` to `<0.5` weak positive, `<0` directional
+inconsistency) and remain annotations rather than score multipliers. HIC2 is
+looked up only after the ranking is fixed. Qualitative literature evidence is
+source-linked and never converted to a numerical score.
+
+ZFPM2 is present in processed RNA as `ENSG00000169946` but absent from the guide
+library. Its log-normalised expression is summarised for HIC2 and pooled NTC
+singlet cells separately within DMSO/Dasatinib and R1/R2. For replicate `r`, the
+targeted downstream contrast is:
+
+```text
+ZFPM2_DiD_r = (Dasatinib_HIC2,r - Dasatinib_NTC,r)
+            - (DMSO_HIC2,r       - DMSO_NTC,r)
+```
+
+Only after the two replicate effects are estimated are their mean and direction
+agreement reported. Individual cells are not treated as independent biological
+replicates for inferential claims. This analysis tests downstream consistency;
+it does not assign ZFPM2 a perturbation rank or establish direct regulation.
+
+The final implemented sequence is: verified RNA/ATAC/guide alignment; RNA and
+ATAC preprocessing; eligibility filtering; replicate-specific pseudobulk;
+replicate-specific background-corrected DiD; replicate-mean effect vectors;
+modality-specific effect norms; within-modality z-scoring; equal-weight
+integration; and post-hoc experimental, literature, and downstream validation.
