@@ -5,7 +5,8 @@ matplotlib==3.10.6
 numpy==2.2.3
 pandas==3.0.6
 PyYAML==6.0.3
-rdata==1.1.0
+rdata==0.11.2; python_version < "3.11"
+rdata==1.1.0; python_version >= "3.11"
 scanpy==1.12.4
 scikit-learn==1.7.2
 scipy==1.15.2
